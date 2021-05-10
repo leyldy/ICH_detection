@@ -6,6 +6,11 @@ import pydicom
 from tqdm import tqdm_notebook
 import pickle
 import random
+import sys
+
+sys.path.append('..')
+
+
 from utils.get_metadata import *
 #from utils.window import window_img
 from utils.create_3D_volume import *
