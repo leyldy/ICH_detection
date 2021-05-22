@@ -4,7 +4,7 @@ from scipy import ndimage
 import os
 import pydicom
 from tqdm import tqdm_notebook
-import pickle
+#import pickle
 import random
 import sys
 
