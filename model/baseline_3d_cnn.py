@@ -53,7 +53,6 @@ class baseline_3DCNN(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(16, 6),
         )
-        self.sigmoid = nn.Sigmoid()
 
 
     def forward(self, x):
@@ -70,6 +69,5 @@ class baseline_3DCNN(nn.Module):
         out = self.lin1(out)
         out = self.lin2(out)
         out = self.lin3(out)
-        out = self.sigmoid(out)
         return out
 
