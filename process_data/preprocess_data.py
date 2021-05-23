@@ -19,7 +19,7 @@ import os
 import random
 import sys
 
-sys.path.append('..')
+sys.path.append('..') # may need to change to '.' if cannot find data_path, depends on what your current working directory is
 
 from utils.get_metadata import *
 #from utils.window import window_img
@@ -29,7 +29,7 @@ from utils.resize_volume import *
 random.seed(231)
 
 
-# Set file paths
+# Set file paths # may need to change
 data_path = '/Users/zouj6/Documents/CS231N/final_proj/stage_2_train/'
 metadata_path = data_path
 label_path = '/Users/zouj6/Documents/CS231N/final_proj/stage_2_train.csv'
@@ -145,7 +145,7 @@ print("DONE!")
 
 
 # SAVE RESULTS ------------------------------------------------------------------------------------
-'''
+# May need to change directories
 with open('CTscans_studynames_train', 'wb') as studies_file:
     pickle.dump(study_names_all, studies_file)
 
@@ -158,15 +158,7 @@ with open('CTscans_3Dlabels_train', 'wb') as labels_file:
 
 
 
-
-
-
-
-
-
-
-
-
+'''
 ########################
 ### GET DATA SAMPLES ###
 ########################
