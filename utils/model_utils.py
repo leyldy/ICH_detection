@@ -23,7 +23,7 @@ def calculate_ind_metrics(pred, target, threshold=0.5):
     num_pred_occur = np.sum(pred, axis=0)
     
     # Calculate precision, recall, fscore, etc (NEED TO CHANGE)
-    precision, recall, fscore, num_true_occur = precision_recall_fscore_support(y_true=target, y_pred=pred, average=None, zero_division="warn")
+    precision, recall, fscore, num_true_occur = precision_recall_fscore_support(y_true=target, y_pred=pred, average=None, zero_division=0)
     num_pred_occur = np.sum(pred, axis=0)
     
     # Updating predictions (see above)
@@ -62,7 +62,7 @@ def calculate_avg_metrics(pred, target, threshold=0.5):
 #     acc_type_total = np.mean(acc_type_by_patient, axis=0)
     
     # Precision, recall, etc (NEED TO CHANGE)
-    precision, recall, fscore, num_true_occur = precision_recall_fscore_support(y_true=target, y_pred=pred, average='micro', zero_division="warn")
+    precision, recall, fscore, num_true_occur = precision_recall_fscore_support(y_true=target, y_pred=pred, average='micro', zero_division=0)
     avg_metrics_dict = {'accuracy_ich': acc_ich, 'accuracy_ich_type': acc_type_total, 
                         'precision': precision, 'recall': recall, 'fscore': fscore, 
                         'num_true_occur': np.sum(num_true_occur), 'num_pred_occur': np.sum(pred)}
