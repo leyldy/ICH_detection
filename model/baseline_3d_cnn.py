@@ -11,7 +11,7 @@ from utils.model_utils import *
 # Note: need to recompute dim sizes
 
 class baseline_3DCNN(nn.Module):
-    def __init__(self, in_num_ch=1, img_size=(40,512,512), inter_num_ch=4, kernel_size=3, conv_act='relu',dropout=0.2):
+    def __init__(self, in_num_ch=1, img_size=(40,256,256), inter_num_ch=4, kernel_size=3, conv_act='relu',dropout=0.2):
         super().__init__()
 
         self.conv1 = nn.Sequential(
@@ -24,15 +24,15 @@ class baseline_3DCNN(nn.Module):
                         nn.Conv3d(inter_num_ch, 2*inter_num_ch, kernel_size=3, padding=1), #(4,20,258,258) --> (8,20,256,256)
                         nn.ReLU(inplace=True),
                         nn.BatchNorm3d(2*inter_num_ch),
-                        nn.MaxPool3d(2), #(8,20,256,256) --> (8,10,128,128)
+                        nn.MaxPool3d(4), #(8,20,256,256) --> (8,10,128,128)
                         nn.Dropout3d(dropout))
 
-        self.conv3 = nn.Sequential(
-                        nn.Conv3d(2*inter_num_ch, 4*inter_num_ch, kernel_size=3, padding=1), #(8,10,130,130) --> (16,10,128,128)
-                        nn.ReLU(inplace=True),
-                        nn.BatchNorm3d(4*inter_num_ch),
-                        nn.MaxPool3d(2)) #(16,10,128,128) --> (16,5,64,64)
-                        #nn.Dropout3d(dropout))
+#         self.conv3 = nn.Sequential(
+#                         nn.Conv3d(2*inter_num_ch, 4*inter_num_ch, kernel_size=3, padding=1), #(8,10,130,130) --> (16,10,128,128)
+#                         nn.ReLU(inplace=True),
+#                         nn.BatchNorm3d(4*inter_num_ch),
+#                         nn.MaxPool3d(2)) #(16,10,128,128) --> (16,5,64,64)
+#                         #nn.Dropout3d(dropout))
 
 #         self.conv4 = nn.Sequential(
 #                         nn.Conv3d(4*inter_num_ch, 2*inter_num_ch, kernel_size=3, padding=1),
@@ -42,18 +42,18 @@ class baseline_3DCNN(nn.Module):
         
         self.lin1 = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(16*5*64*64, 128),
+            nn.Linear(8*5*32*32, 128),
             nn.ReLU()
         )
         self.lin2 = nn.Sequential(
                     nn.Dropout(dropout),
-                    nn.Linear(128, 16),
+                    nn.Linear(128, 6),
                     nn.ReLU(),
         )
-        self.lin3 = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(16, 6),
-        )
+#         self.lin3 = nn.Sequential(
+#             nn.Dropout(dropout),
+#             nn.Linear(16, 6),
+#         )
 
 
     def forward(self, x):
@@ -62,13 +62,13 @@ class baseline_3DCNN(nn.Module):
 #         print(conv_out.shape)
         conv_out = self.conv2(conv_out)
 #         print(conv_out.shape)
-        conv_out = self.conv3(conv_out)
-        print(conv_out.shape)
+#         conv_out = self.conv3(conv_out)
+#         print(conv_out.shape)
 #         conv4 = self.conv4(conv3)
 #         print(conv4.shape)
         out = flatten(conv_out)
         out = self.lin1(out)
         out = self.lin2(out)
-        out = self.lin3(out)
+#         out = self.lin3(out)
         return out
 
