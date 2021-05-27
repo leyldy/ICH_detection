@@ -1,3 +1,4 @@
 {
-    "batch_size": 16
+    "batch_size": 16,
+    "shard_size": 16
 }
