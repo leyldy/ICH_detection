@@ -35,7 +35,6 @@ def train(model, optimizer, criterion, loader_train, loader_val, log_dir, device
     writer = SummaryWriter(log_dir)
 
     for e in range(1, epochs+1):
-        model.train()  # put model to training mode
         
         with tqdm(loader_train, unit="batch") as tepoch:
             ep_train_losses = []
@@ -43,6 +42,8 @@ def train(model, optimizer, criterion, loader_train, loader_val, log_dir, device
 
 #             print("************EPOCH: {:2d} ***************".format(e))
             for t, (x, y, z) in enumerate(tepoch):
+                model.train()  # put model to training mode
+                
                 tepoch.set_description("Epoch %d" % e)
                 
                 t += 1 # To start from iteration 1 (1-indexing)
