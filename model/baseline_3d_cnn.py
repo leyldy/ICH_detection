@@ -57,8 +57,12 @@ class baseline_3DCNN(nn.Module):
 
 
     def forward(self, x):
-
-        conv_out = self.conv1(x)
+        # Have to add resize to make dataset more manageable..
+        trans_x = transforms.Resize(size=(256, 256))(x)
+        # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image
+        trans_x = trans_x.unsqueeze(axis=1)
+        
+        conv_out = self.conv1(trans_x)
 #         print(conv_out.shape)
         conv_out = self.conv2(conv_out)
 #         print(conv_out.shape)

@@ -49,11 +49,6 @@ def train(model, optimizer, criterion, loader_train, loader_val, log_dir, device
                 t += 1 # To start from iteration 1 (1-indexing)
                 
                 x = x.to(device=device, dtype=dtype)  # move to device, e.g. GPU
-                # Have to add resize to make dataset more manageable..
-                x = transforms.Resize(size=(256, 256))(x)
-                # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image
-                x = x.unsqueeze(axis=1)
-
                 y = y.to(device=device, dtype=dtype)
 
                 scores = model(x)
