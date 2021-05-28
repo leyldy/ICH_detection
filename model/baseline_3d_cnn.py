@@ -25,7 +25,7 @@ class baseline_3DCNN(nn.Module):
                         nn.Conv3d(inter_num_ch, 2*inter_num_ch, kernel_size=3, padding=1), #(4,20,258,258) --> (8,20,256,256)
                         nn.ReLU(inplace=True),
                         nn.BatchNorm3d(2*inter_num_ch),
-                        nn.MaxPool3d(4), #(8,20,256,256) --> (8,10,128,128)
+                        nn.MaxPool3d(2), #(8,20,256,256) --> (8,10,128,128)
                         nn.Dropout3d(dropout))
 
         self.conv3 = nn.Sequential(
@@ -62,11 +62,8 @@ class baseline_3DCNN(nn.Module):
         trans_x = transforms.Resize(size=(256, 256))(x)
         # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image
         trans_x = trans_x.unsqueeze(axis=1)
-        
         conv_out = self.conv1(trans_x)
-#         print(conv_out.shape)
         conv_out = self.conv2(conv_out)
-#         print(conv_out.shape)
         conv_out = self.conv3(conv_out)
 #         print(conv_out.shape)
 #         conv4 = self.conv4(conv3)
