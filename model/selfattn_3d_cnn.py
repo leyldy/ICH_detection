@@ -14,30 +14,29 @@ from utils.SelfAttention3D import *
 
 # Note: need to recompute dim sizes
 
-class baseline_3DCNN(nn.Module):
+class selfattn_3DCNN(nn.Module):
     def __init__(self, in_num_ch=1, img_size=(40, 256, 256), inter_num_ch=4, kernel_size=3, conv_act='relu',
                  dropout=0.2):
         super().__init__()
 
         self.conv1 = nn.Sequential(
-            nn.Conv3d(in_num_ch, inter_num_ch, kernel_size=3, padding=1),  # (1,40,514,514) --> (4,40,512,512)
+            nn.Conv3d(in_num_ch, inter_num_ch, kernel_size=3, padding=1),  # (1,40,256,256) --> (4,40,256,256)
             nn.ReLU(inplace=True),
             nn.BatchNorm3d(inter_num_ch),
-            nn.MaxPool3d(2))  # (4,40,512,512) --> (4,20,256,256)
+            nn.MaxPool3d(2))  # (4,40,256,256) --> (4,20,128,128)
 
         self.conv2 = nn.Sequential(
-            nn.Conv3d(inter_num_ch, 2 * inter_num_ch, kernel_size=3, padding=1),  # (4,20,258,258) --> (8,20,256,256)
+            nn.Conv3d(inter_num_ch, 2 * inter_num_ch, kernel_size=3, padding=1),  # (4,20,128,128) --> (8,20,128,128)
             nn.ReLU(inplace=True),
             nn.BatchNorm3d(2 * inter_num_ch),
-            nn.MaxPool3d(2),  # (8,20,256,256) --> (8,10,128,128)
+            nn.MaxPool3d(2),  # (8,20,128,128) --> (8,10,64,64)
             nn.Dropout3d(dropout))
 
         self.conv3 = nn.Sequential(
-            nn.Conv3d(2 * inter_num_ch, 4 * inter_num_ch, kernel_size=3, padding=1),
-            # (8,10,130,130) --> (16,10,128,128)
+            nn.Conv3d(2 * inter_num_ch, 4 * inter_num_ch, kernel_size=3, padding=1),  # (8,10,64,64) --> (16,10,64,64)
             nn.ReLU(inplace=True),
             nn.BatchNorm3d(4 * inter_num_ch),
-            nn.MaxPool3d(2))  # (16,10,128,128) --> (16,5,64,64)
+            nn.MaxPool3d(2))  # (16,10,64,64) --> (16,5,32,32)
         # nn.Dropout3d(dropout))
 
         #         self.conv4 = nn.Sequential(
@@ -46,11 +45,11 @@ class baseline_3DCNN(nn.Module):
         #                         nn.BatchNorm3d(2*inter_num_ch),
         #                         nn.MaxPool3d(2))
 
-        self.self_attn_3D = SelfAttention3D(embed_dim = 16*5*16*16, in_channels = 16, dropout=0.1)
+        self.self_attn_3D = SelfAttention3D(embed_dim = 16*5*32*32, in_channels = 16, dropout=0.2) # (16,5,32,32) --> (16,5,32,32)
 
         self.lin1 = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(16 * 5 * 32 * 32, 128),
+            nn.Linear(16*5*32*32, 128),
             nn.ReLU()
         )
         self.lin2 = nn.Sequential(
