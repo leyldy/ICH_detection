@@ -33,10 +33,10 @@ class selfattn_3DCNN(nn.Module):
             nn.Dropout3d(dropout))
 
         self.conv3 = nn.Sequential(
-            nn.Conv3d(2 * inter_num_ch, 4 * inter_num_ch, kernel_size=3, padding=1),  # (8,10,64,64) --> (16,10,64,64)
+            nn.Conv3d(2 * inter_num_ch, 1, kernel_size=3, padding=1),  # (8,10,64,64) --> (1,10,64,64)
             nn.ReLU(inplace=True),
-            nn.BatchNorm3d(4 * inter_num_ch),
-            nn.MaxPool3d(2))  # (16,10,64,64) --> (16,5,32,32)
+            nn.BatchNorm3d(1),
+            nn.MaxPool3d(2))  # (1,10,64,64) --> (1,5,32,32)
         # nn.Dropout3d(dropout))
 
         #         self.conv4 = nn.Sequential(
@@ -44,17 +44,18 @@ class selfattn_3DCNN(nn.Module):
         #                         nn.ReLU(inplace=True),
         #                         nn.BatchNorm3d(2*inter_num_ch),
         #                         nn.MaxPool3d(2))
-
-        self.self_attn_3D = SelfAttention3D(embed_dim = 16*5*32*32, in_channels = 16, dropout=0.2) # (16,5,32,32) --> (16,5,32,32)
+        
+        embed_dim = 1*5*32*32
+        self.self_attn_3D = SelfAttention3D(embed_dim = embed_dim, in_channels = 1, dropout=dropout) # (1,5,32,32) --> (1,5,32,32)
 
         self.lin1 = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(16*5*32*32, 128),
+            nn.Linear(embed_dim, 64),
             nn.ReLU()
         )
         self.lin2 = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(128, 16),
+            nn.Linear(64, 16),
             nn.ReLU(),
         )
         self.lin3 = nn.Sequential(
@@ -63,18 +64,21 @@ class selfattn_3DCNN(nn.Module):
         )
 
     def forward(self, x):
-        # Have to add resize to make dataset more manageable..
+        
+        # Have to add resize to make dataset more manageable
         trans_x = transforms.Resize(size=(256, 256))(x)
-        # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image
+        
+        # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image (comes in (N, H, W), need to make into (N, C, H, W))
         trans_x = trans_x.unsqueeze(axis=1)
-        conv_out = self.conv1(trans_x)
-        conv_out = self.conv2(conv_out)
-        conv_out = self.conv3(conv_out)
+        
+        out = self.conv1(trans_x)
+        out = self.conv2(out)
+        out = self.conv3(out)
         #         print(conv_out.shape)
         #         conv4 = self.conv4(conv3)
         #         print(conv4.shape)
-        conv_out = self.self_attn_3D(conv_out)
-        out = flatten(conv_out)
+        out = self.self_attn_3D(out)
+        out = flatten(out)
         out = self.lin1(out)
         out = self.lin2(out)
         out = self.lin3(out)

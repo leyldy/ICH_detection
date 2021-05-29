@@ -116,10 +116,12 @@ def validate_model(loader, model, criterion, iteration, writer, device):
         # Run validation on validation batches
         
         for x, y, z in loader:
+            print(x.size())
             x = transforms.Resize(size=(256, 256))(x)
 
-            # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image
-            x = x.unsqueeze(axis=1)
+            # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image (N, C, H, W)
+            # NOTE: DON'T NEED TO ADD EXTRA DIMENSION HERE BECAUSE LOADED IN WITH C DIM ALREADY
+            # x = x.unsqueeze(axis=1)
 
             x = x.to(device=device, dtype=dtype)  # move to device, e.g. GPU
             y = y.to(device=device, dtype=dtype)
