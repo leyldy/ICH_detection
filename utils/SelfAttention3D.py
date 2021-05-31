@@ -79,7 +79,7 @@ class SelfAttention3D(nn.Module):
         key = self.Wkey(data).view(N, -1)  # (N, E) where E = C * D * H * W
         query = self.Wquery(data).view(N, -1)  # (N, E)
         value = self.Wvalue(data).view(N, -1)  # (N, E)
-        print("Key size {}".format(key.size()))
+        #print("Key size {}".format(key.size()))
 
         # Get attention weights (relevance of each query to keys thru outer product of keys and queries, einsum helps ignore the N axis)
         att = F.softmax(torch.einsum('ni,nj->nij', key, query),
@@ -87,12 +87,12 @@ class SelfAttention3D(nn.Module):
 
         # A dropout layer right after softmax, like we did in assignment 3
         att = self.dropout_lyr(att)  # (N, E, E)
-        print("Att size {}".format(att.size()))
+        #print("Att size {}".format(att.size()))
 
         # Weight values with attention weights, then sum along each weighted value
         value_shape = list(value.size())[1]  # E
         output = torch.sum(att * value.reshape(N, value_shape, 1), 1)  # (N, E) sum columns
-        print("Output size {}".format(output.size()))
+        #print("Output size {}".format(output.size()))
         # ^ (N, E, E) x (N, E, 1) = (N, E, E) then sum along axis 1 = (N, E)
 
         # Last linear layer (learns W_o)

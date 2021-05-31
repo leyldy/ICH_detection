@@ -75,7 +75,7 @@ class selfattn_3DCNN(nn.Module):
         conv_out = self.conv3(conv_out)
         # conv4 = self.conv4(conv3)
         # print(conv4.shape)
-        out = self.self_attn_3D(out)
+        out = self.self_attn_3D(conv_out)
         out = flatten(conv_out)
         out = self.lin1(out)
         out = self.lin2(out)

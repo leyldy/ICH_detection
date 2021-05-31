@@ -116,7 +116,6 @@ def validate_model(loader, model, criterion, iteration, writer, device):
         # Run validation on validation batches
         
         for x, y, z in loader:
-            print(x.size())
             x = transforms.Resize(size=(256, 256))(x)
 
             # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image (N, C, H, W)
