@@ -47,7 +47,7 @@ class resattn_3DCNN(nn.Module):
 
         self.lin1 = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(40*256*256, 64),
+            nn.Linear(embed_dim, 64), # use nn.Linear(40*256*256, 64) if want to do skip connection taking x from beginning
             nn.ReLU()
         )
         self.lin2 = nn.Sequential(
@@ -72,11 +72,12 @@ class resattn_3DCNN(nn.Module):
         conv_out = self.conv2(conv_out)
         conv_out = self.conv3(conv_out)
         # conv4 = self.conv4(conv3)
-        # print(conv4.shape)
         out = self.self_attn_3D(conv_out)
-        out = flatten(conv_out) # (N, 5120) 1*5*32*32 = 5120
-        out = F.pad(out, (1308160, 1308160) , "constant", 0) # (N, 2621440) residual connection -- pad the output up to original input size (pad = [(40*256*256)-(1*5*32*32)] / 2 = 1,308,160)
-        out += flatten(trans_x) # residual connection -- add back the (flattened) input
+        out += conv_out # residual connection (add back output of last conv layer)
+        out = flatten(out) # (N, 5120) 1*5*32*32 = 5120
+        # these two commented lines below are if you want the residual connection to take the initial x and bring it over -- however it might be more memory efficient to bring just the output of the last conv layer over
+        #out = F.pad(out, (1308160, 1308160) , "constant", 0) # (N, 2621440) residual connection -- pad the output up to original input size (pad = [(40*256*256)-(1*5*32*32)] / 2 = 1,308,160)
+        #out += flatten(trans_x) # residual connection -- add back the (flattened) input
         out = self.lin1(out)
         out = self.lin2(out)
         out = self.lin3(out)
