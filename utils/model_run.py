@@ -116,8 +116,6 @@ def validate_model(loader, model, criterion, iteration, writer, device):
         # Run validation on validation batches
         
         for x, y, z in loader:
-            x = transforms.Resize(size=(256, 256))(x)
-
             # Add code to unsqueeze because we only have 1 channel (axis=1) of this 3d image (N, C, H, W)
             # NOTE: DON'T NEED TO ADD EXTRA DIMENSION HERE BECAUSE LOADED IN WITH C DIM ALREADY
             # x = x.unsqueeze(axis=1)
@@ -149,3 +147,43 @@ def validate_model(loader, model, criterion, iteration, writer, device):
     # Return validation loss
     return val_loss
 
+
+
+def test_model(loader, model, criterion, writer, device):
+#     print('Checking accuracy on validation set')
+
+    num_correct = 0
+    num_samples = 0
+    model.eval()  # set model to evaluation mode
+    
+    with tqdm(loader, unit="batch") as tepoch:  
+        with torch.no_grad():
+            targets_np, scores_np, test_losses, batch_sizes = [], [], [], []
+
+            # Run validation on validation batches
+
+            for x, y, z in tepoch:
+                x = x.to(device=device, dtype=dtype)  # move to device, e.g. GPU
+                y = y.to(device=device, dtype=dtype)
+                model = model.to(device)
+                scores = model(x)
+                test_loss = criterion(scores, y)
+                test_losses.append(test_loss.item())
+                batch_sizes.append(x.shape[0])
+
+                scores_np.extend(scores.detach().cpu().numpy())
+                targets_np.extend(y.cpu().numpy())
+
+
+    # Calculate metrics after running full validation set across all batches
+    scores_np, targets_np = np.array(scores_np), np.array(targets_np)
+
+    # Log Metrics
+    test_loss = np.average(test_losses, weights=batch_sizes)
+    iteration=1
+    log_metrics(scores_np, targets_np, test_loss, 1, writer, curr_mode="test")
+
+    # Print results
+    print('Test loss = %.4f' % (test_loss))
+
+    return test_loss
