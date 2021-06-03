@@ -78,14 +78,14 @@ def rank_saliency_slices(saliency_df):
 
 
 
-def plot_saliency_maps(X, saliency_df, ich_num, patient_id, d_range, num_rows, num_cols):
+def plot_saliency_maps(X, saliency_df, ich_num, patient_id, d_range, num_rows=16, num_cols=5, figsize=(20,40)):
     # Convert the saliency map from Torch Tensor to numpy array and show images
     # and saliency maps together.
     saliency_np = saliency_df[ich_num, patient_id, d_range, :, :].cpu().numpy() # (D,H,W)
     D = saliency_np.shape[0]
     curr_slice = 0
     assert num_rows * num_cols == 2*D, print("WRONG DIMS FOR PLOTTING")
-    fig = plt.figure(figsize=(14,9))
+    fig = plt.figure(figsize=figsize)
     for d in d_range: 
         ax = fig.add_subplot(num_rows, num_cols, (curr_slice//num_cols) * num_cols + curr_slice + 1)
         ax.imshow(X[patient_id, d, :, :])
