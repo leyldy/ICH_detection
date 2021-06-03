@@ -50,7 +50,15 @@ def compute_saliency_maps(X, y, model, device):
             # Loss and saliency
             loss = curr_scores[:, dim].sum() # Only sum loss in curr ICH type
             loss.backward()
-            saliency_all[dim, rel_ind, :, :, :] += torch.abs(curr_x.grad)
+            saliency_all[dim, rel_ind, :, :, :] += torch.abs(curr_x.grad.detach())
+            
+            del curr_x
+            del curr_scores
+            del loss
+    
+    del X
+    del model
+        
     return saliency_all # (ICH_types, N, D, H, W)
 
 
@@ -70,26 +78,26 @@ def rank_saliency_slices(saliency_df):
 
 
 
-def plot_saliency_maps(X, saliency_df, ich_num, patient_id, d_range):
+def plot_saliency_maps(X, saliency_df, ich_num, patient_id, d_range, num_rows, num_cols):
     # Convert the saliency map from Torch Tensor to numpy array and show images
     # and saliency maps together.
     saliency_np = saliency_df[ich_num, patient_id, d_range, :, :].cpu().numpy() # (D,H,W)
     D = saliency_np.shape[0]
-    num_rows = 2*8
-    num_cols = 2*D // num_rows
-    curr_row = 0
-    curr_col = 0
+    curr_slice = 0
     assert num_rows * num_cols == 2*D, print("WRONG DIMS FOR PLOTTING")
-    fig = plt.figure(figsize=(20, 40))
-    for d in d_range: #0-40
-        ax = fig.add_subplot(num_rows, num_cols, (curr_row//num_cols) * num_cols + d + 1)
+    fig = plt.figure(figsize=(14,9))
+    for d in d_range: 
+        ax = fig.add_subplot(num_rows, num_cols, (curr_slice//num_cols) * num_cols + curr_slice + 1)
         ax.imshow(X[patient_id, d, :, :])
         ax.axis('off')
         ax.title.set_text("Slice: "+str(d))
-        ax2 = fig.add_subplot(num_rows, num_cols, (curr_row//num_cols) * num_cols + d + 1 + num_cols)
-        ax2.imshow(saliency_np[d, :, :], cmap=plt.cm.hot)
-        ax2.axis('off')
+        del ax
+        
+        ax = fig.add_subplot(num_rows, num_cols, (curr_slice//num_cols) * num_cols + curr_slice + 1 + num_cols)
+        ax.imshow(saliency_np[curr_slice, :, :], cmap=plt.cm.hot)
+        ax.axis('off')
         # plt.gcf().set_size_inches(12, 5)
+        del ax
 
-        curr_row += 1
+        curr_slice += 1
     return fig
